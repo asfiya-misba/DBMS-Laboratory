@@ -1,0 +1,161 @@
+
+--Order Database
+
+
+
+
+/*
+Consider the following schema for Order Database:
+SALESMAN(Salesman_id, Name, City, Commission)
+CUSTOMER(Customer_id, Cust_Name, City, Grade, Salesman_id)
+ORDERS(Ord_No, Purchase_Amt, Ord_Date, Customer_id, Salesman_id)
+Write SQL queries to
+1. Count the customers with grades above Bangalore’s average.
+2. Find the name and numbers of all salesman who had more than one customer.
+3. List all the salesman and indicate those who have and don’t have customers in
+their cities (Use UNION operation.)
+4. Create a view that finds the salesman who has the customer with the highest order
+of a day.
+5. Demonstrate the DELETE operation by removing salesman with id 1000. All
+his orders must also be deleted.
+*/
+
+
+
+
+
+--CREATING TABLES
+
+CREATE TABLE SALESMAN (
+SALESMAN_ID INT PRIMARY KEY, NAME VARCHAR(20), CITY VARCHAR(20), COMMISSION VARCHAR(10));
+
+CREATE TABLE CUSTOMER (
+CUSTOMER_ID INT PRIMARY KEY, CUST_NAME VARCHAR(20), CITY VARCHAR(20), GRADE NUMBER(3), SALESMAN_ID REFERENCES SALESMAN(SALESMAN_ID));
+
+CREATE TABLE ORDERS (
+ORD_NO INT PRIMARY KEY, PURCHASE_AMT NUMBER(10,2), ORD_DATE DATE, CUSTOMER_ID REFERENCES CUSTOMER(CUSTOMER_ID), SALESMAN_ID REFERENCES SALESMAN(SALESMAN_ID));
+
+--INSERTING VALUES
+
+INSERT INTO SALESMAN VALUES (1000, 'KABIR', 'BANGALORE', '25%');
+INSERT INTO SALESMAN VALUES (2000, 'ALIA', 'MUMBAI', '15%');
+INSERT INTO SALESMAN VALUES (3000, 'AYAAN', 'JAIPUR', '5%');
+INSERT INTO SALESMAN VALUES (4000, 'ZARA', 'MANALI', '20%');
+INSERT INTO SALESMAN VALUES (5000, 'TARA', 'KOLKATA', '30%');
+
+INSERT INTO CUSTOMER VALUES (100, 'ELENA', 'BANGALORE', 500, 1000);
+INSERT INTO CUSTOMER VALUES (101, 'SHELDON', 'HYDERABAD', 300, 1000);
+INSERT INTO CUSTOMER VALUES (102, 'PENNY', 'KOLKATA', 800, 5000);
+INSERT INTO CUSTOMER VALUES (103, 'SERENA', 'MANALI', 900, 4000);
+INSERT INTO CUSTOMER VALUES (104, 'CLAY', 'CHENNAI', 500, 4000);
+
+INSERT INTO ORDERS VALUES (1, 1000.70, '04-JAN-2021',100,1000);
+INSERT INTO ORDERS VALUES (2, 3000.50, '28-SEP-2020',101,1000);
+INSERT INTO ORDERS VALUES (3, 800.70, '25-DEC-2019',102,5000);
+INSERT INTO ORDERS VALUES (4, 700.25, '25-JUL-2018',103,4000);
+INSERT INTO ORDERS VALUES (5, 3000.25, '03-AUG-2017',104,4000);
+
+
+/*
+1. Count the customers with grades above Bangalore’s average.
+*/
+
+SELECT GRADE, COUNT(DISTINCT CUSTOMER_ID)
+FROM CUSTOMER
+GROUP BY GRADE
+HAVING GRADE > ( SELECT AVG(GRADE)
+                 FROM CUSTOMER
+                 WHERE CITY = 'BANGALORE');
+
+/*
+GRADE	     COUNT(DISTINCTCUSTOMER_ID)
+900	           1
+800	           1
+*/
+
+
+/*
+2. Find the name and numbers of all salesman who had more than one customer.
+*/
+
+
+SELECT SALESMAN_ID, NAME
+FROM SALESMAN S
+WHERE 1 < ( SELECT COUNT(*)
+            FROM CUSTOMER
+            WHERE SALESMAN_ID = S.SALESMAN_ID);
+
+/*
+SALESMAN_ID	     NAME
+1000		         KABIR
+4000		         ZARA
+*/
+
+
+/*
+3. List all the salesman and indicate those who have and don’t have customers in
+their cities (Use UNION operation.)
+*/
+
+SELECT SALESMAN.SALESMAN_ID, NAME, CUST_NAME, COMMISSION
+FROM SALESMAN, CUSTOMER
+WHERE SALESMAN.CITY = CUSTOMER.CITY
+UNION
+SELECT SALESMAN_ID, NAME, 'NO MATCH', COMMISSION
+FROM SALESMAN
+WHERE NOT CITY = ANY( SELECT CITY
+                        FROM CUSTOMER)
+ORDER BY 2 DESC;
+
+/*
+SALESMAN_ID    	NAME	   CUST_NAME  	COMMISSION
+4000		        ZARA	    SERENA	    	20%
+5000		        TARA    	PENNY     		30%
+1000		       KABIR	    ELENA	      	25%
+3000		       AYAAN	   NO MATCH	      5%
+2000		       ALIA	     NO MATCH	      15%
+*/
+
+
+/*
+4. Create a view that finds the salesman who has the customer with the highest order
+of a day.
+*/
+
+CREATE VIEW HIGHEST AS
+SELECT O.ORD_DATE, S.SALESMAN_ID, S.NAME
+FROM SALESMAN S, ORDERS O
+WHERE S.SALESMAN_ID = O.SALESMAN_ID
+        AND O.PURCHASE_AMT = ( SELECT MAX(PURCHASE_AMT)
+                                FROM ORDERS R
+                                WHERE R.ORD_DATE = O.ORD_DATE);
+
+SELECT * FROM HIGHEST;
+
+/*
+ORD_DATE	    SALESMAN_ID    	NAME
+04-JAN-21	       1000    		KABIR
+28-SEP-20	       1000   		KABIR
+25-DEC-19	       5000   		TARA
+25-JUL-18	       4000   		ZARA
+03-AUG-17	       4000   		ZARA
+*/
+
+
+/*
+5. Demonstrate the DELETE operation by removing salesman with id 1000. All
+his orders must also be deleted.
+*/
+
+DELETE FROM SALESMAN
+WHERE SALESMAN_ID=1000;
+
+SELECT * FROM SALESMAN;
+
+/*
+SALESMAN_ID	NAME	  CITY	  COMMISSION
+2000		    ALIA	 MUMBAI	    15%
+3000		    AYAAN	 JAIPUR	     5%
+4000		    ZARA   MANALI	    20%
+5000		    TARA	 KOLKATA	  30%
+*/
