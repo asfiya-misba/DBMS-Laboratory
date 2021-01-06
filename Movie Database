@@ -1,0 +1,183 @@
+
+/*
+3. Consider the schema for Movie Database:
+ACTOR (Act_id, Act_Name, Act_Gender)
+DIRECTOR (Dir_id, Dir_Name, Dir_Phone)
+MOVIES (Mov_id, Mov_Title, Mov_Year, Mov_Lang, Dir_id)
+MOVIE_CAST (Act_id, Mov_id, Role)
+RATING (Mov_id, Rev_Stars)
+Write SQL queries to
+1. List the titles of all movies directed by ‘Hitchcock’.
+2. Find the movie names where one or more actors acted in two or more movies.
+3. List all actors who acted in a movie before 2000 and also in a movie after
+2015 (use JOIN operation).
+4. Find the title of movies and number of stars for each movie that has at least one
+rating and find the highest number of stars that movie received. Sort the result by
+movie title.
+5. Update rating of all movies directed by ‘Steven Spielberg’ to 5.
+*/
+
+
+--CREATING TABLES
+
+CREATE TABLE ACTOR(
+ACT_ID INT PRIMARY KEY, ACT_NAME VARCHAR(20), ACT_GENDER CHAR(1));
+
+CREATE TABLE DIRECTOR(
+DIR_ID INT PRIMARY KEY, DIR_NAME VARCHAR(20), DIR_PHONE NUMBER(10));
+
+CREATE TABLE MOVIES(
+MOV_ID INT PRIMARY KEY, MOV_TITLE VARCHAR(20), MOV_YEAR NUMBER(4), MOV_LANG VARCHAR(20), DIR_ID REFERENCES DIRECTOR(DIR_ID));
+
+CREATE TABLE MOVIE_CAST(
+ACT_ID REFERENCES ACTOR(ACT_ID), MOV_ID REFERENCES MOVIES(MOV_ID), ROLE VARCHAR(20), PRIMARY KEY(ACT_ID,MOV_ID));
+
+CREATE TABLE RATING(
+MOV_ID REFERENCES MOVIES(MOV_ID) PRIMARY KEY, REV_STARS INT);
+
+
+--INSERTING VALUES
+
+
+INSERT INTO ACTOR VALUES(1,'ALIA BHATT','F');
+INSERT INTO ACTOR VALUES(2,'RANBIR KAPOOR','M');
+INSERT INTO ACTOR VALUES(3,'ADITYA ROY KAPUR','M');
+INSERT INTO ACTOR VALUES(4,'SARA ALI KHAN','F');
+INSERT INTO ACTOR VALUES(5,'KATRINA KAIF','F');
+
+INSERT INTO DIRECTOR VALUES(101,'HITCHCOCK','9876543212');
+INSERT INTO DIRECTOR VALUES(102,'IMTIAZ ALI','9899943212');
+INSERT INTO DIRECTOR VALUES(103,'AYAAN MUKHERJI','9876543333');
+INSERT INTO DIRECTOR VALUES(104,'ZOYA AKHTAR','9776543212');
+INSERT INTO DIRECTOR VALUES(105,'STEVEN SPIELBERG','9876663212');
+
+INSERT INTO MOVIES VALUES(1001,'ZNMD',1998,'HINDI',104);
+INSERT INTO MOVIES VALUES(1002,'JAB WE MET',2009,'HINDI',102);
+INSERT INTO MOVIES VALUES(1003,'GRAVITY',2010,'ENGLISH',101);
+INSERT INTO MOVIES VALUES(1004,'YJHD',2017,'HINDI',103);
+INSERT INTO MOVIES VALUES(1005,'ATOM',1980,'ENGLISH',105);
+
+INSERT INTO MOVIE_CAST VALUES(1,1002,'FEMALE LEAD');
+INSERT INTO MOVIE_CAST VALUES(1,1005,'GUEST');
+INSERT INTO MOVIE_CAST VALUES(2,1002,'MALE LEAD');
+INSERT INTO MOVIE_CAST VALUES(3,1005,'MALE LEAD');
+INSERT INTO MOVIE_CAST VALUES(4,1004,'FEMALE LEAD');
+INSERT INTO MOVIE_CAST VALUES(5,1001,'FEMALE LEAD');
+INSERT INTO MOVIE_CAST VALUES(5,1003,'FEMALE LEAD');
+INSERT INTO MOVIE_CAST VALUES(5,1002,'CAMEO');
+INSERT INTO MOVIE_CAST VALUES(2,1005,'CAMEO');
+
+INSERT INTO RATING VALUES(1001,5);
+INSERT INTO RATING VALUES(1002,4);
+INSERT INTO RATING VALUES(1003,3);
+INSERT INTO RATING VALUES(1004,4);
+INSERT INTO RATING VALUES(1005,2);
+
+
+/*
+1. List the titles of all movies directed by ‘Hitchcock’.
+*/
+
+SELECT MOV_TITLE
+FROM MOVIES
+WHERE DIR_ID IN (SELECT DIR_ID
+                    FROM DIRECTOR
+                    WHERE DIR_NAME='HITCHCOCK');
+/*
+MOV_TITLE
+GRAVITY
+*/
+
+
+
+/*
+2. Find the movie names where one or more actors acted in two or more movies.
+*/
+
+SELECT MOV_TITLE
+FROM MOVIES M, MOVIE_CAST C
+WHERE M.MOV_ID=C.MOV_ID
+AND ACT_ID IN (SELECT ACT_ID
+                FROM MOVIE_CAST
+                GROUP BY ACT_ID
+                HAVING COUNT(ACT_ID)>1)
+GROUP BY MOV_TITLE
+HAVING COUNT(*)>1;
+
+/*
+MOV_TITLE
+ATOM
+JAB WE MET
+*/
+
+
+/*
+3. List all actors who acted in a movie before 2000 and also in a movie after
+2015 (use JOIN operation).
+*/
+
+SELECT ACT_NAME, MOV_TITLE, MOV_YEAR
+FROM ACTOR A
+JOIN MOVIE_CAST C
+ON A.ACT_ID=C.ACT_ID
+JOIN MOVIES M
+ON C.MOV_ID=M.MOV_ID
+WHERE M.MOV_YEAR NOT BETWEEN 2000 AND 2015;
+
+/*
+ACT_NAME		      MOV_TITLE	      MOV_YEAR
+ALIA BHATT		      ATOM		        1980
+RANBIR KAPOOR		    ATOM		        1980
+ADITYA ROY KAPUR	  ATOM		        1980
+SARA ALI KHAN		    YJHD		        2017
+KATRINA KAIF		    ZNMD		        1998
+*/
+
+
+/*
+4. Find the title of movies and number of stars for each movie that has at least one
+rating and find the highest number of stars that movie received. Sort the result by
+movie title.
+*/
+
+SELECT MOV_TITLE, MAX(REV_STARS)
+FROM MOVIES
+INNER JOIN RATING USING(MOV_ID)
+GROUP BY MOV_TITLE
+HAVING MAX(REV_STARS)>0
+ORDER BY MOV_TITLE;
+
+
+/*
+MOV_TITLE	      MAX(REV_STARS)
+ATOM		          2
+GRAVITY		        3
+JAB WE MET	      4
+YJHD		          4
+ZNMD		          5
+*/
+
+
+/*
+5. Update rating of all movies directed by ‘Steven Spielberg’ to 5.
+*/
+
+UPDATE RATING
+SET REV_STARS=5
+WHERE MOV_ID IN (SELECT MOV_ID
+                    FROM MOVIES
+                    WHERE DIR_ID IN (SELECT DIR_ID
+                                        FROM DIRECTOR
+                                        WHERE DIR_NAME='STEVEN SPIELBERG'));
+
+SELECT * FROM RATING;
+
+/*
+MOV_ID	REV_STARS
+1001	      5
+1002	      4
+1003	      3
+1004	      4
+1005	      5
+*/
+
