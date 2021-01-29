@@ -74,6 +74,8 @@ INSERT INTO RATING VALUES(1004,4);
 INSERT INTO RATING VALUES(1005,2);
 
 
+
+--Queries
 /*
 1. List the titles of all movies directed by ‘Hitchcock’.
 */
