@@ -103,6 +103,8 @@ INSERT INTO BOOK_LENDING VALUES ( 2,101,1000,'15-FEB-2017','25-FEB-2017');
 INSERT INTO BOOK_LENDING VALUES ( 5,100,1000,'15-APR-2017','25-APR-2017');
 
 
+--Queries
+
 /*
 1. Retrieve details of all books in the library – id, title, name of publisher, authors,
 number of copies in each Programme, etc.
