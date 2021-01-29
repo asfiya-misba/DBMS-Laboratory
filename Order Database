@@ -57,6 +57,8 @@ INSERT INTO ORDERS VALUES (4, 700.25, '25-JUL-2018',103,4000);
 INSERT INTO ORDERS VALUES (5, 3000.25, '03-AUG-2017',104,4000);
 
 
+--Queries
+
 /*
 1. Count the customers with grades above Bangalore’s average.
 */
