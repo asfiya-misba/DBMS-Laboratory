@@ -20,7 +20,7 @@ Give these details only for 8th semester A, B, and C section students.
 
 
 
-
+--Creating Tables
 
 CREATE TABLE STUDENT (
 USN VARCHAR (10) PRIMARY KEY,
