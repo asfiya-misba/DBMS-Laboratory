@@ -10,16 +10,18 @@ BOOK_COPIES(Book_id, Programme_id, No-of_Copies)
 BOOK_LENDING(Book_id, Programme_id, Card_No, Date_Out, Due_Date) 
 LIBRARY_PROGRAMME(Programme_id, Programme_Name, Address) 
 Write SQL queries to 
-1. Retrieve details of all books in the library – id, title, name of publisher, authors, 
+	1. Retrieve details of all books in the library – id, title, name of publisher, authors, 
 number of copies in each Programme, etc. 
-2. Get the particulars of borrowers who have borrowed more than 3 books, but 
+  2. Get the particulars of borrowers who have borrowed more than 3 books, but 
 from Jan 2017 to Jun 2017. 
-3. Delete a book in BOOK table. Update the contents of other tables to reflect this 
+  3. Delete a book in BOOK table. Update the contents of other tables to reflect this 
 data manipulation operation. 
-4. Partition the BOOK table based on year of publication. Demonstrate its working 
+  4. Partition the BOOK table based on year of publication. Demonstrate its working 
 with a simple query. 
-5. Create a view of all books and its number of copies that are currently available 
+  5. Create a view of all books and its number of copies that are currently available 
 in the Library.
+
+
 
 
 2. Consider the following schema for Order Database: 
@@ -37,6 +39,8 @@ of a day.
 his orders must also be deleted. 
 
 
+
+
 3. Consider the schema for Movie Database: 
 ACTOR(Act_id, Act_Name, Act_Gender) 
 DIRECTOR(Dir_id, Dir_Name, Dir_Phone) 
@@ -52,6 +56,8 @@ Write SQL queries to
 rating and find the highest number of stars that movie received. Sort the result by 
 movie title. 
 5. Update rating of all movies directed by ‘Steven Spielberg’ to 5. 
+
+
 
 
 4. Consider the schema for College Database: 
@@ -72,6 +78,8 @@ If FinalIA = 17 to 20 then CAT = ‘Outstanding’
 If FinalIA = 12 to 16 then CAT = ‘Average’ 
 If FinalIA< 12 then CAT = ‘Weak’ 
 Give these details only for 8th semester A, B, and C section students.
+
+
 
 
 5. Consider the schema for Company Database: 
